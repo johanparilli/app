@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transportador de Acordes</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        
+        /* Estilos para el cuerpo de este DOCUMENTO HTML, no del blog */
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh; /* Asegura que ocupe la altura completa del iframe */
+            display: flex; /* Usa flexbox para centrar el contenido */
+            justify-content: center; /* Centra horizontalmente */
+            align-items: center; /* Centra verticalmente */
+            background-color: #f0f4f8; /* Un fondo claro para el contenido del iframe */
+            box-sizing: border-box;
+            overflow-x: hidden; /* Evita el desplazamiento horizontal dentro del iframe */
+        }
+
+        /* Contenedor principal de la aplicación: Asegura centrado y ancho limitado */
+        .chord-transposer-container {
+            font-family: 'Poppins', sans-serif;
+            display: block;
+            width: 100%;
+            max-width: 768px; /* Limita el ancho máximo del contenedor */
+            margin-left: auto; /* Centra el contenedor horizontalmente */
+            margin-right: auto; /* Centra el contenedor horizontalmente */
+            padding: 1rem; /* Añade un padding interno al contenedor para el espaciado visual */
+            box-sizing: border-box;
+            border-radius: 0.75rem; /* rounded-xl de Tailwind */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-xl de Tailwind */
+            overflow: hidden; /* Oculta cualquier contenido que se desborde */
+            background-color: #ffffff; /* bg-white de Tailwind */
+        }
+
+        .chord {
+            display: inline-block;
+            padding: 2px 6px;
+            margin: 2px;
+            border-radius: 4px;
+            font-weight: 600;
+            background-color: rgba(99, 102, 241, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="chord-transposer-container">
+        <div class="bg-gradient-to-r from-indigo-600 to-purple-600 p-6 text-white">
+            <h1 class="text-2xl md:text-3xl font-bold text-center">Transportador de Acordes</h1>
+            <p class="text-center opacity-90 mt-2">Cambia la tonalidad de tus canciones fácilmente</p>
+        </div>
+
+        <div class="p-6">
+            <div class="mb-6">
+                <label for="songInput" class="block text-sm font-medium text-gray-700 mb-2">Ingresa la letra con acordes:</label>
+                <textarea id="songInput" rows="8" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="Ejemplo:
+G           D
+Cuando despiertes un día
+C           G
+y sientas que no puedes más..."></textarea>
+            </div>
+
+            <div class="flex flex-wrap gap-4 mb-6">
+                <div class="w-full md:w-auto">
+                    <label for="transposeSelect" class="block text-sm font-medium text-gray-700 mb-2">Transportar:</label>
+                    <div class="flex items-center">
+                        <button id="transposeDown" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-l-lg">-</button>
+                        <select id="transposeSelect" class="px-4 py-2 border-y border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-center">
+                            <option value="-11">-11 semitonos</option>
+                            <option value="-10">-10 semitonos</option>
+                            <option value="-9">-9 semitonos</option>
+                            <option value="-8">-8 semitonos</option>
+                            <option value="-7">-7 semitonos</option>
+                            <option value="-6">-6 semitonos</option>
+                            <option value="-5">-5 semitonos</option>
+                            <option value="-4">-4 semitonos</option>
+                            <option value="-3">-3 semitonos</option>
+                            <option value="-2">-2 semitonos</option>
+                            <option value="-1">-1 semitono</option>
+                            <option value="0" selected>0 (Original)</option>
+                            <option value="1">+1 semitono</option>
+                            <option value="2">+2 semitonos</option>
+                            <option value="3">+3 semitonos</option>
+                            <option value="4">+4 semitonos</option>
+                            <option value="5">+5 semitonos</option>
+                            <option value="6">+6 semitonos</option>
+                            <option value="7">+7 semitonos</option>
+                            <option value="8">+8 semitonos</option>
+                            <option value="9">+9 semitonos</option>
+                            <option value="10">+10 semitonos</option>
+                            <option value="11">+11 semitonos</option>
+                        </select>
+                        <button id="transposeUp" class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-r-lg">+</button>
+                    </div>
+                </div>
+
+                <div class="w-full md:w-auto">
+                    <label for="notationSelect" class="block text-sm font-medium text-gray-700 mb-2">Notación:</label>
+                    <select id="notationSelect" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500">
+                        <option value="latin" selected>Latina (Do, Re, Mi...)</option>
+                        <option value="english">Inglesa (C, D, E...)</option>
+                    </select>
+                </div>
+
+                <div class="w-full md:w-auto md:ml-auto">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Acciones:</label>
+                    <div class="flex gap-2">
+                        <button id="transposeBtn" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition">Transportar</button>
+                        <button id="copyBtn" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition">Copiar</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Resultado:</label>
+                <div id="resultContainer" class="w-full min-h-[200px] px-4 py-3 bg-gray-50 border border-gray-300 rounded-lg font-mono whitespace-pre-wrap"></div>
+            </div>
+
+            <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2h-1V9a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-blue-700">
+                            Escribe los acordes en mayúsculas (C, D, G) o con la primera letra mayúscula (Do, Re, Mi) y las variaciones con minúsculas (m, 7, maj7). Ejemplo: <span class="chord">Cmaj7</span>, <span class="chord">Dm</span>, <span class="chord">Sol7</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Definición de notas en notación latina e inglesa (con índices cromáticos)
+        const CHROMATIC_SCALE = [
+            { english: 'C', latin: 'Do', index: 0 },
+            { english: 'C#', latin: 'Do#', index: 1 },
+            { english: 'D', latin: 'Re', index: 2 },
+            { english: 'D#', latin: 'Re#', index: 3 },
+            { english: 'E', latin: 'Mi', index: 4 },
+            { english: 'F', latin: 'Fa', index: 5 },
+            { english: 'F#', latin: 'Fa#', index: 6 },
+            { english: 'G', latin: 'Sol', index: 7 },
+            { english: 'G#', latin: 'Sol#', index: 8 },
+            { english: 'A', latin: 'La', index: 9 },
+            { english: 'A#', latin: 'La#', index: 10 },
+            { english: 'B', latin: 'Si', index: 11 }
+        ];
+
+        // Mapeo de bemoles a sostenidos (enarmónicos)
+        const FLAT_TO_SHARP = {
+            'Db': 'C#', 'Eb': 'D#', 'Gb': 'F#', 'Ab': 'G#', 'Bb': 'A#',
+            'Reb': 'Do#', 'Mib': 'Re#', 'Solb': 'Fa#', 'Lab': 'Sol#', 'Sib': 'La#'
+        };
+
+        // Elementos del DOM
+        const songInput = document.getElementById('songInput');
+        const transposeSelect = document.getElementById('transposeSelect');
+        const notationSelect = document.getElementById('notationSelect');
+        const resultContainer = document.getElementById('resultContainer');
+        const transposeBtn = document.getElementById('transposeBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const transposeUp = document.getElementById('transposeUp');
+        const transposeDown = document.getElementById('transposeDown');
+
+        // Función para normalizar una nota (convertir bemoles a sostenidos)
+        function normalizeNote(note) {
+            return FLAT_TO_SHARP[note] || note;
+        }
+
+        // Función para obtener el índice cromático de una nota
+        function getNoteIndex(note, notation) {
+            // Normalizar la nota (convertir bemoles a sostenidos)
+            const normalizedNote = normalizeNote(note);
+
+            // Buscar el índice en la escala cromática
+            for (let i = 0; i < CHROMATIC_SCALE.length; i++) {
+                if (notation === 'english' && CHROMATIC_SCALE[i].english === normalizedNote) {
+                    return CHROMATIC_SCALE[i].index;
+                } else if (notation === 'latin' && CHROMATIC_SCALE[i].latin === normalizedNote) {
+                    return CHROMATIC_SCALE[i].index;
+                }
+            }
+
+            return -1; // No se encontró la nota
+        }
+
+        // Función para obtener una nota a partir de su índice cromático
+        function getNoteByIndex(index, notation) {
+            // Asegurarse de que el índice esté en el rango 0-11
+            const normalizedIndex = ((index % 12) + 12) % 12;
+
+            // Buscar la nota en la escala cromática
+            for (let i = 0; i < CHROMATIC_SCALE.length; i++) {
+                if (CHROMATIC_SCALE[i].index === normalizedIndex) {
+                    return notation === 'english' ? CHROMATIC_SCALE[i].english : CHROMATIC_SCALE[i].latin;
+                }
+            }
+
+            return null; // No debería ocurrir
+        }
+
+        // Función para transportar una nota
+        function transposeNote(note, semitones, notation) {
+            // Obtener el índice cromático de la nota
+            const noteIndex = getNoteIndex(note, notation);
+            if (noteIndex === -1) return note; // No se pudo transportar
+
+            // Calcular el nuevo índice
+            const newIndex = (noteIndex + semitones + 12) % 12;
+
+            // Obtener la nueva nota
+            return getNoteByIndex(newIndex, notation);
+        }
+
+        // Función para detectar y transportar acordes
+        function transposeChords() {
+            const input = songInput.value;
+            const semitones = parseInt(transposeSelect.value);
+            const notation = notationSelect.value;
+
+            // Expresiones regulares para detectar acordes
+            const englishChordRegex = /\b([A-G][#b]?)(m|maj|maj7|m7|7|dim|aug|sus2|sus4|add9|6|9|11|13)?\b/g;
+            const latinChordRegex = /\b(Do|Re|Mi|Fa|Sol|La|Si)([#b]?)(m|maj|maj7|m7|7|dim|aug|sus2|sus4|add9|6|9|11|13)?\b/g;
+
+            let result = input;
+
+            if (notation === 'english') {
+                // Transportar acordes en notación inglesa
+                result = result.replace(englishChordRegex, function(match, note, suffix = '') {
+                    const transposedNote = transposeNote(note, semitones, 'english');
+                    return transposedNote + suffix;
+                });
+
+                // Convertir acordes latinos a ingleses y transportar
+                result = result.replace(latinChordRegex, function(match, note, accidental = '', suffix = '') {
+                    const latinNote = note + accidental;
+                    const noteIndex = getNoteIndex(latinNote, 'latin');
+                    if (noteIndex !== -1) {
+                        const newIndex = (noteIndex + semitones + 12) % 12;
+                        return getNoteByIndex(newIndex, 'english') + suffix;
+                    }
+                    return match;
+                });
+            } else {
+                // Transportar acordes en notación latina
+                result = result.replace(latinChordRegex, function(match, note, accidental = '', suffix = '') {
+                    const latinNote = note + accidental;
+                    const transposedNote = transposeNote(latinNote, semitones, 'latin');
+                    return transposedNote + suffix;
+                });
+
+                // Convertir acordes ingleses a latinos y transportar
+                result = result.replace(englishChordRegex, function(match, note, suffix = '') {
+                    const noteIndex = getNoteIndex(note, 'english');
+                    if (noteIndex !== -1) {
+                        const newIndex = (noteIndex + semitones + 12) % 12;
+                        return getNoteByIndex(newIndex, 'latin') + suffix;
+                    }
+                    return match;
+                });
+            }
+
+            // Resaltar acordes en el resultado
+            if (notation === 'english') {
+                result = result.replace(englishChordRegex, '<span class="chord">$&</span>');
+            } else {
+                result = result.replace(latinChordRegex, '<span class="chord">$&</span>');
+            }
+
+            resultContainer.innerHTML = result;
+        }
+
+        // Eventos
+        transposeBtn.addEventListener('click', transposeChords);
+
+        copyBtn.addEventListener('click', function() {
+            const textToCopy = resultContainer.innerText;
+            // Usar document.execCommand('copy') como fallback para entornos iframe
+            if (document.execCommand) {
+                const textarea = document.createElement('textarea');
+                textarea.value = textToCopy;
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    document.execCommand('copy');
+                    const originalText = copyBtn.textContent;
+                    copyBtn.textContent = '¡Copiado!';
+                    setTimeout(() => {
+                        copyBtn.textContent = originalText;
+                    }, 2000);
+                } catch (err) {
+                    console.error('No se pudo copiar el texto usando execCommand: ', err);
+                } finally {
+                    document.body.removeChild(textarea);
+                }
+            } else if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(textToCopy).then(() => {
+                    const originalText = copyBtn.textContent;
+                    copyBtn.textContent = '¡Copiado!';
+                    setTimeout(() => {
+                        copyBtn.textContent = originalText;
+                    }, 2000);
+                }).catch(err => {
+                    console.error('No se pudo copiar el texto usando Clipboard API: ', err);
+                });
+            } else {
+                console.warn('La API de portapapeles no está disponible.');
+            }
+        });
+
+        transposeUp.addEventListener('click', function() {
+            const selectElement = transposeSelect;
+            let currentValue = parseInt(selectElement.value);
+            if (currentValue < 11) {
+                selectElement.value = (currentValue + 1).toString();
+                transposeChords();
+            }
+        });
+
+        transposeDown.addEventListener('click', function() {
+            const selectElement = transposeSelect;
+            let currentValue = parseInt(selectElement.value);
+            if (currentValue > -11) {
+                selectElement.value = (currentValue - 1).toString();
+                transposeChords();
+            }
+        });
+
+        // Cambiar notación automáticamente
+        notationSelect.addEventListener('change', transposeChords);
+        transposeSelect.addEventListener('change', transposeChords); // Asegurar que también se transporte al cambiar el select directamente
+
+        // Ejemplo inicial
+        songInput.value = "G           D\nCuando despiertes un día\nC           G\ny sientas que no puedes más\nEm          C\nCuando te falten las fuerzas\nD           G\npara incluso respirar";
+
+        // Transportar al cargar la página
+        window.addEventListener('load', transposeChords);
+    </script>
+</body>
+</html>
