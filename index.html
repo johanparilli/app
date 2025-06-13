@@ -140,6 +140,25 @@ y sientas que no puedes más..."></textarea>
         const resultContainer = document.getElementById('resultContainer');
         const transposeBtn = document.getElementById('transposeBtn');
         const copyBtn = document.getElementById('copyBtn');
+
+
+// Función para mostrar el feedback visual
+    function showCopyFeedback(message, isError = false) {
+        const originalText = copyBtn.textContent;
+        copyBtn.textContent = message;
+        if (isError) {
+            copyBtn.classList.add('bg-red-500', 'hover:bg-red-600'); // Estilo de error
+            copyBtn.classList.remove('bg-gray-600', 'hover:bg-gray-700');
+        }
+        setTimeout(() => {
+            copyBtn.textContent = originalText;
+            if (isError) {
+                copyBtn.classList.remove('bg-red-500', 'hover:bg-red-600');
+                copyBtn.classList.add('bg-gray-600', 'hover:bg-gray-700');
+            }
+        }, 2000);
+    }
+
         const transposeUp = document.getElementById('transposeUp');
         const transposeDown = document.getElementById('transposeDown');
         
@@ -254,16 +273,39 @@ y sientas que no puedes más..."></textarea>
         // Eventos
         transposeBtn.addEventListener('click', transposeChords);
         
-        copyBtn.addEventListener('click', function() {
-            const textToCopy = resultContainer.innerText;
-            navigator.clipboard.writeText(textToCopy).then(() => {
-                const originalText = copyBtn.textContent;
-                copyBtn.textContent = '¡Copiado!';
-                setTimeout(() => {
-                    copyBtn.textContent = originalText;
-                }, 2000);
-            });
-        });
+        
+    copyBtn.addEventListener('click', async function() { // Usamos 'async' para await
+        const textToCopy = resultContainer.innerText;
+
+        try {
+            // 1. Intentar la Clipboard API (moderna y preferida)
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                await navigator.clipboard.writeText(textToCopy);
+                showCopyFeedback('¡Copiado!');
+            } else if (document.execCommand) { // 2. Fallback a document.execCommand (menos confiable en móviles)
+                const textarea = document.createElement('textarea');
+                textarea.value = textToCopy;
+                // Para execCommand, es mejor que el textarea sea temporalmente visible y seleccionable
+                textarea.style.position = 'fixed'; // Para que no afecte el layout
+                textarea.style.top = '0';
+                textarea.style.left = '0';
+                textarea.style.opacity = '0'; // Lo hacemos invisible
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea); // Eliminar después de copiar
+                showCopyFeedback('¡Copiado!');
+            } else {
+                // 3. Fallback final: Mostrar mensaje al usuario para que copie manualmente
+                alert('Tu navegador no soporta la copia automática. Por favor, selecciona y copia el texto manualmente del cuadro de resultados.');
+                console.warn('La API de portapapeles no está disponible en este navegador o contexto.');
+            }
+        } catch (err) {
+            console.error('Error al copiar el texto:', err);
+            // Puedes dar feedback de error al usuario si lo deseas
+            showCopyFeedback('Error al copiar', true);
+        }
+    });
         
         transposeUp.addEventListener('click', function() {
             const currentValue = parseInt(transposeSelect.value);
